@@ -1,10 +1,9 @@
-import 'dart:ffi';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:toDoo/widgets/new_todo_item.dart';
 import 'package:toDoo/widgets/todo_list.dart';
@@ -13,8 +12,15 @@ import 'models/todo.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final document = await getApplicationDocumentsDirectory();
-  await Hive.initFlutter(document.path);
+
+  String path;
+  if(kIsWeb){
+    path = "/assets/db";
+  }else{
+    final directory = await getApplicationDocumentsDirectory();
+    await Hive.initFlutter(directory.path);
+  }
+
   Hive.registerAdapter(TodoItemsAdapter());
 
   await Hive.openBox('todo_items');
@@ -95,6 +101,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void dispose() {
+    super.dispose();
     Hive.close();
   }
 }
